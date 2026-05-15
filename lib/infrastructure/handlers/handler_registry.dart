@@ -1,5 +1,6 @@
 import '../../domain/document.dart';
 import 'code_handler.dart';
+import 'comic_handler.dart';
 import 'document_handler.dart';
 import 'epub_handler.dart';
 import 'html_handler.dart';
@@ -22,9 +23,10 @@ class HandlerRegistry {
       MarkdownHandler(),
       HtmlHandler(),
       CodeHandler(),
+      ComicHandler(),
       ImageHandler(),
       TextHandler(),
-      OfficeHandoffHandler(), // last-resort handoff for unknown office docs
+      OfficeHandoffHandler(),
     ]);
   }
 
@@ -33,6 +35,13 @@ class HandlerRegistry {
   DocumentHandler? resolve(DocumentRef ref, {List<int>? headerBytes}) {
     for (final handler in _handlers) {
       if (handler.canHandle(ref, headerBytes: headerBytes)) return handler;
+    }
+    return null;
+  }
+
+  DocumentHandler? byId(String id) {
+    for (final h in _handlers) {
+      if (h.id == id) return h;
     }
     return null;
   }

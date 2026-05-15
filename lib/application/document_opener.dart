@@ -4,12 +4,21 @@ import 'package:flutter/widgets.dart';
 
 import '../core/errors/app_exception.dart';
 import '../domain/document.dart';
+import '../infrastructure/handlers/document_handler.dart';
 import '../infrastructure/handlers/handler_registry.dart';
 import '../infrastructure/mime/mime_detector.dart';
 
-/// Entry point used by the UI: given a file path, figure out the right
-/// handler, build its reader widget, and surface a typed error if no
-/// handler claims the file.
+class OpenedDocument {
+  const OpenedDocument({
+    required this.ref,
+    required this.handler,
+    required this.reader,
+  });
+  final DocumentRef ref;
+  final DocumentHandler handler;
+  final Widget reader;
+}
+
 class DocumentOpener {
   DocumentOpener({
     required HandlerRegistry registry,
@@ -20,7 +29,7 @@ class DocumentOpener {
   final HandlerRegistry _registry;
   final MimeDetector _mime;
 
-  Future<Widget> open(String path) async {
+  Future<OpenedDocument> open(String path) async {
     final file = File(path);
     if (!file.existsSync()) {
       throw const FileMissingException('File no longer exists.');
@@ -40,7 +49,8 @@ class DocumentOpener {
     if (handler == null) {
       throw UnsupportedFormatException('No handler for ${ref.extension}.');
     }
-    return handler.buildReader(ref);
+    final widget = await handler.buildReader(ref);
+    return OpenedDocument(ref: ref, handler: handler, reader: widget);
   }
 
   String _extOf(String path) {

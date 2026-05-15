@@ -1,44 +1,67 @@
 # Document Reader
 
 Universal document reader for Android and iOS, built with Flutter. The
-full design lives in [`plan.md`](./plan.md); this README only covers
-what is wired up today and what is intentionally still empty.
+full design lives in [`plan.md`](./plan.md); this README covers the
+current implementation state.
 
-## Status — end of Phase 0 scaffolding
+## Status — Phases 0 / 1 / 2 / 3 wired in Dart
 
-What is in the tree:
+What works (assuming `flutter pub get` and `dart run build_runner build`
+succeed on a real Flutter install):
+
+**Phase 0 — scaffolding**
 
 - `pubspec.yaml`, `analysis_options.yaml`, `l10n.yaml`,
   `flutter_native_splash.yaml`
-- 25-locale ARB scaffold under `lib/l10n/` (English populated, others
-  copied verbatim — translate iteratively per plan §3.1)
-- Material 3 theme, edge-to-edge system UI (no `immersive*` mode), and
-  a `go_router` skeleton
-- Riverpod providers for locale, theme mode, handler registry, document
-  opener and recents
-- Domain model: `DocumentRef`, `Bookmark`, `Annotation`, `ReaderState`
-- `DocumentHandler` strategy + `HandlerRegistry` plus stub handlers for
-  every Tier A format and the Tier B office handoff
-- Drift schema for `documents`, `recents`, `bookmarks`, `reader_states`
-  and an FTS5 search index (generated bindings build with
-  `dart run build_runner build`)
-- Mandatory settings screens: Language, Support our work, Open source
+- 25-locale ARB scaffold (English populated, others copied verbatim —
+  translate iteratively per plan §3.1)
+- Material 3 theme, edge-to-edge system UI (no immersive modes)
+- `go_router` skeleton, Riverpod providers
+- Mandatory settings rows: Language, Support our work, Open source
   licenses (`showLicensePage()` wrapper)
-- Smoke test for the handler registry
 
-What is **not** yet done:
+**Phase 1 — Tier A readers**
 
-- Real renderers — every handler currently returns the stub widget from
-  `lib/infrastructure/handlers/_stub.dart`. Phase 1 fills these in.
-- Splash slogan — `splashSlogan` ARB key is intentionally empty,
-  blocking on product copy (plan §7.1).
-- Translations — only English is meaningful; all other ARB files are
-  copies of the English template.
-- Native platform projects (`android/`, `ios/`) — not generated here
-  since `flutter create` was not available in the bootstrap
-  environment. Run `flutter create . --platforms=android,ios` to add
-  them, then `flutter pub get` and
-  `dart run build_runner build --delete-conflicting-outputs`.
+- PDF (`pdfx`) with page indicator and resumed position
+- Plain text / log / csv with BOM- and heuristic-driven charset decoding
+- Markdown (`flutter_markdown` + GFM)
+- Source code (50+ languages) via `flutter_highlight`
+- Images including HEIC transcoding on Android
+- HTML (`flutter_html`)
+- EPUB (`epub_view`) with CFI position resume
+- `receive_sharing_intent` wired so "Open with…" lands in the reader
+- File picker entrypoint on the home screen
+
+**Phase 2 — handoff + polish**
+
+- Office formats (`.docx/.xlsx/.pptx/.odt/...`) route to a "Quick
+  preview" page that opens the OS handler via `open_filex`
+- Reading themes (light / sepia / dark / OLED black), font family
+  (serif / sans / mono), font size — persisted via `shared_preferences`
+- Bookmarks (drift table + dedicated screen)
+- Reading position auto-saved per document, restored on next open
+- Recents with auto-generated thumbnails (PDF first page, image
+  compress) backed by drift
+- Share via `share_plus`; print PDFs via `printing`
+
+**Phase 3 — optional**
+
+- CBZ comics (`archive` + `photo_view_gallery`)
+- TTS for text/markdown/code/html/EPUB via `flutter_tts`
+- OCR for images via `google_mlkit_text_recognition`
+- Full-text search across all opened documents (FTS5 via drift)
+
+What is intentionally **not** in scope:
+
+- Native `android/`/`ios/` shells (run `flutter create . --platforms=…`)
+- Splash slogan (blocked on product copy — `splashSlogan` is empty in
+  every ARB)
+- Translations beyond English (24 locales are verbatim copies; mark up
+  translators on a per-locale basis)
+- CBR/MOBI/AZW3/DJVU — proprietary, no usable Dart libs
+- Cloud connectors (Drive/Dropbox/WebDAV) and cross-device sync —
+  plan §7 open questions, need backend / OAuth keys
+- Server-side LibreOffice conversion — plan §1 Tier B option (3)
 
 ## Bootstrap
 
@@ -49,16 +72,23 @@ dart run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
+`build_runner` generates `lib/infrastructure/database/app_database.g.dart`
+from the drift schema and the `app_localizations*.dart` files from the
+ARB sources.
+
 ## Layout
 
 See plan.md §4 for the full layered breakdown. In short:
 
 ```
 lib/
-  core/           theme · routing · lifecycle · errors
-  domain/         pure-Dart models
-  infrastructure/ handlers · mime · database · prefs · filesystem
-  application/    document opener · services · Riverpod providers
-  presentation/   screens · widgets
-  l10n/           ARB files + supported locales list
+  core/             theme · routing · lifecycle · errors
+  domain/           pure-Dart models, reader prefs enum
+  infrastructure/   handlers · mime · text decoding · database · tts
+  application/      document opener · services · Riverpod providers
+  presentation/
+    readers/        one widget per Tier A format + office handoff + comic
+    screens/        home · reader · bookmarks · search · settings
+    widgets/        shared (ReaderOptionsSheet)
+  l10n/             ARB files + supported_locales list
 ```

@@ -12,7 +12,10 @@ class Documents extends Table {
   TextColumn get displayName => text()();
   TextColumn get mimeType => text()();
   IntColumn get sizeBytes => integer()();
+  TextColumn get handlerId => text().nullable()();
+  BlobColumn get thumbnail => blob().nullable()();
   DateTimeColumn get lastOpenedAt => dateTime().nullable()();
+  DateTimeColumn get indexedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {path};
@@ -43,12 +46,16 @@ class ReaderStates extends Table {
   Set<Column> get primaryKey => {documentPath};
 }
 
-/// Full-text index over extracted document text. Drift creates the
-/// underlying FTS5 virtual table from this declaration.
+/// FTS5 virtual table holding extracted text for search. Drift generates
+/// the `CREATE VIRTUAL TABLE … USING fts5(…)` statement from this.
 @DataClassName('SearchIndexEntry')
-class SearchIndex extends Table {
+class SearchIndex extends Table with VirtualTableInfo<SearchIndex, SearchIndexEntry> {
   TextColumn get documentPath => text()();
   TextColumn get content => text()();
+
+  @override
+  String get moduleAndArgs =>
+      'fts5(document_path, content, tokenize="unicode61 remove_diacritics 2")';
 }
 
 @DriftDatabase(
@@ -56,6 +63,7 @@ class SearchIndex extends Table {
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_open());
+  AppDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
   int get schemaVersion => 1;

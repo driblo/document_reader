@@ -1,12 +1,10 @@
+import 'package:flutter/widgets.dart';
+
 import '../../domain/document.dart';
-import '_stub.dart';
+import '../../presentation/readers/office_handoff_view.dart';
 import 'document_handler.dart';
 
-/// Phase 2 entry point for Office formats. Recognises the extensions
-/// today so the registry doesn't fall off the end on a `.docx`; the
-/// real Phase 2 work is wiring `Intent.ACTION_VIEW` (Android) and
-/// `UIDocumentInteractionController` / QuickLook (iOS).
-class OfficeHandoffHandler extends DocumentHandler with HandlerStubMixin {
+class OfficeHandoffHandler extends DocumentHandler {
   static const _exts = {
     'doc', 'docx', 'odt', 'rtf',
     'xls', 'xlsx', 'ods',
@@ -19,4 +17,14 @@ class OfficeHandoffHandler extends DocumentHandler with HandlerStubMixin {
   @override
   bool canHandle(DocumentRef ref, {List<int>? headerBytes}) =>
       _exts.contains(ref.extension);
+
+  @override
+  Future<Widget> buildReader(DocumentRef ref) async =>
+      OfficeHandoffView(ref: ref);
+
+  @override
+  Future<Thumbnail?> generateThumbnail(DocumentRef ref) async => null;
+
+  @override
+  Future<String?> extractText(DocumentRef ref) async => null;
 }
