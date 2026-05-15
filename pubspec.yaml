@@ -1,0 +1,59 @@
+name: document_reader
+description: Universal document reader for Android and iOS.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
+
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Routing
+  go_router: ^14.2.0
+
+  # Persistence
+  drift: ^2.18.0
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  shared_preferences: ^2.3.0
+
+  # File access
+  file_picker: ^8.0.6
+  receive_sharing_intent: ^1.8.0
+
+  # Tier A renderers (wired in Phase 1; declared now so analyzer accepts handler stubs)
+  pdfx: ^2.6.0
+  flutter_markdown: ^0.7.3
+  flutter_highlight: ^0.7.0
+  highlight: ^0.7.0
+  photo_view: ^0.15.0
+  flutter_image_compress: ^2.3.0
+  flutter_html: ^3.0.0-beta.2
+  epub_view: ^3.2.0
+  charset: ^2.0.1
+
+  # Splash
+  flutter_native_splash: ^2.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  drift_dev: ^2.18.0
+  riverpod_generator: ^2.4.2
+
+flutter:
+  uses-material-design: true
+  generate: true

@@ -1,0 +1,62 @@
+{
+  "@@locale": "ru",
+
+  "appName": "Document Reader",
+  "@appName": {
+    "description": "Application name shown in the launcher and headers."
+  },
+
+  "splashSlogan": "",
+  "@splashSlogan": {
+    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+  },
+
+  "homeTitle": "Documents",
+  "homeRecent": "Recent",
+  "homeBrowse": "Browse files",
+  "homeEmpty": "No recent documents yet.\nOpen a file to get started.",
+
+  "readerLoading": "Loading…",
+  "readerOpenFailed": "Could not open this document.",
+  "readerUnsupported": "This format is not supported yet.",
+  "readerHandoffPrompt": "Open with another app?",
+
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "settingsThemeSystem": "System",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsSupportLink": "Support our work",
+  "settingsOpenSourceLicenses": "Open source licenses",
+  "settingsAbout": "About",
+  "settingsVersion": "Version {version}",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+
+  "supportHeadline": "Support our work to keep this app without ads",
+  "supportBody": "Document Reader is free and ad-free. If it has been useful to you, please consider supporting development.",
+  "supportActionDonate": "Donate",
+  "supportActionShare": "Share the app",
+
+  "languageScreenTitle": "Language",
+  "languageSystemDefault": "System default",
+
+  "search": "Search",
+  "cancel": "Cancel",
+  "ok": "OK",
+  "retry": "Retry",
+  "close": "Close",
+  "share": "Share",
+  "open": "Open",
+  "delete": "Delete",
+  "rename": "Rename",
+  "bookmarks": "Bookmarks",
+
+  "errorGeneric": "Something went wrong.",
+  "errorFileMissing": "The file could not be found.",
+  "errorPermissionDenied": "Permission denied. Please grant access to continue."
+}
