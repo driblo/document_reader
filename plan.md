@@ -233,5 +233,5 @@ File entrypoints:
 - [x] Strings go through translation layer (`AppLocalizations`, lint enforced) — Phase 0
 - [x] System bottom bar stays visible (edge-to-edge, no `immersive*` modes) — global rule
 - [x] Settings → "Support our work" link wired up — Phase 0
-- [ ] Splash screen shows slogan — **blocked on slogan from you**
+- [x] Splash screen shows slogan — Phase 0
 - [x] Settings → "Open source licenses" sub-page (`showLicensePage()`) — Phase 0

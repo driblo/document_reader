@@ -6,9 +6,9 @@
     "description": "Application name shown in the launcher and headers."
   },
 
-  "splashSlogan": "",
+  "splashSlogan": "நீங்கள் இனி பதிவிறக்கம் செய்யப் போகும் கடைசி ஆவண வாசிப்பான்.",
   "@splashSlogan": {
-    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+    "description": "Slogan shown under the logo on the splash screen."
   },
 
   "homeTitle": "ஆவணங்கள்",

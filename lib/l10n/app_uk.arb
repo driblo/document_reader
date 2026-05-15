@@ -6,9 +6,9 @@
     "description": "Application name shown in the launcher and headers."
   },
 
-  "splashSlogan": "",
+  "splashSlogan": "Останній читач документів, який ви коли-небудь завантажите.",
   "@splashSlogan": {
-    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+    "description": "Slogan shown under the logo on the splash screen."
   },
 
   "homeTitle": "Документи",

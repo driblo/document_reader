@@ -6,9 +6,9 @@
     "description": "Application name shown in the launcher and headers."
   },
 
-  "splashSlogan": "",
+  "splashSlogan": "आख़िरी दस्तावेज़ रीडर जिसे आप कभी डाउनलोड करेंगे।",
   "@splashSlogan": {
-    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+    "description": "Slogan shown under the logo on the splash screen."
   },
 
   "homeTitle": "दस्तावेज़",

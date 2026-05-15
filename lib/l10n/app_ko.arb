@@ -6,9 +6,9 @@
     "description": "Application name shown in the launcher and headers."
   },
 
-  "splashSlogan": "",
+  "splashSlogan": "당신이 마지막으로 다운로드하게 될 문서 리더.",
   "@splashSlogan": {
-    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+    "description": "Slogan shown under the logo on the splash screen."
   },
 
   "homeTitle": "문서",

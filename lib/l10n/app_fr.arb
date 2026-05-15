@@ -6,9 +6,9 @@
     "description": "Application name shown in the launcher and headers."
   },
 
-  "splashSlogan": "",
+  "splashSlogan": "Le dernier lecteur de documents que vous téléchargerez.",
   "@splashSlogan": {
-    "description": "Slogan shown under the logo on the splash screen. BLOCKED: awaiting product copy."
+    "description": "Slogan shown under the logo on the splash screen."
   },
 
   "homeTitle": "Documents",
