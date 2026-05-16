@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
+  intl: ^0.20.0
 
   # State management
   flutter_riverpod: ^2.5.1
@@ -41,11 +41,7 @@ dependencies:
   photo_view: ^0.15.0
   flutter_image_compress: ^2.3.0
   flutter_html: ^3.0.0-beta.2
-  epub_view: ^3.2.0
   charset: ^2.0.1
-
-  # Splash
-  flutter_native_splash: ^2.4.1
 
   # Phase 2 — office handoff, share, print, urls
   open_filex: ^4.5.0
@@ -57,6 +53,9 @@ dependencies:
   archive: ^3.6.1
   flutter_tts: ^4.0.2
   google_mlkit_text_recognition: ^0.13.1
+
+  # Permissions
+  permission_handler: ^11.3.1
 
   # Utilities
   collection: ^1.18.0

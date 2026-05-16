@@ -27,6 +27,7 @@ class Recents extends Table {
   DateTimeColumn get openedAt => dateTime()();
 }
 
+@DataClassName('BookmarkRow')
 class Bookmarks extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get documentPath => text().references(Documents, #path)();
@@ -35,6 +36,7 @@ class Bookmarks extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
+@DataClassName('ReaderStateRow')
 class ReaderStates extends Table {
   TextColumn get documentPath => text().references(Documents, #path)();
   TextColumn get position => text()();
@@ -46,20 +48,8 @@ class ReaderStates extends Table {
   Set<Column> get primaryKey => {documentPath};
 }
 
-/// FTS5 virtual table holding extracted text for search. Drift generates
-/// the `CREATE VIRTUAL TABLE … USING fts5(…)` statement from this.
-@DataClassName('SearchIndexEntry')
-class SearchIndex extends Table with VirtualTableInfo<SearchIndex, SearchIndexEntry> {
-  TextColumn get documentPath => text()();
-  TextColumn get content => text()();
-
-  @override
-  String get moduleAndArgs =>
-      'fts5(document_path, content, tokenize="unicode61 remove_diacritics 2")';
-}
-
 @DriftDatabase(
-  tables: [Documents, Recents, Bookmarks, ReaderStates, SearchIndex],
+  tables: [Documents, Recents, Bookmarks, ReaderStates],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_open());
@@ -67,6 +57,18 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+          await customStatement(
+            'CREATE VIRTUAL TABLE IF NOT EXISTS search_index '
+            'USING fts5(document_path, content, '
+            'tokenize="unicode61 remove_diacritics 2")',
+          );
+        },
+      );
 }
 
 LazyDatabase _open() {

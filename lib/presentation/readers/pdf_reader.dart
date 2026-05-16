@@ -37,7 +37,7 @@ class PdfReaderState extends ConsumerState<PdfReader> {
     final page = int.tryParse(saved.position);
     if (page != null && page > 1) {
       await _controller.animateToPage(
-        pageNumber: page,
+        page,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );

@@ -50,7 +50,7 @@ class SearchService {
       'FROM search_index WHERE search_index MATCH ? '
       'ORDER BY rank LIMIT ?',
       variables: [Variable.withString(trimmed), Variable.withInt(limit)],
-      readsFrom: {_db.searchIndex},
+      readsFrom: {},
     ).get();
     return [
       for (final r in rows)
