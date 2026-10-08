@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +12,7 @@ import '../../../application/providers/scanner_providers.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../domain/document.dart';
 import '../../../l10n/app_localizations.dart';
+import 'browse_tab.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -24,11 +25,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     with SingleTickerProviderStateMixin {
   StreamSubscription<List<SharedMediaFile>>? _shareSub;
   late final TabController _tabs;
+  final _browseNav = BrowseNavController();
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
     _wireShareIntents();
   }
 
@@ -43,71 +45,89 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   void _openShared(String path) {
     if (!mounted) return;
-    context.go('${AppRoutes.reader}?path=${Uri.encodeQueryComponent(path)}');
+    context.push('${AppRoutes.reader}?path=${Uri.encodeQueryComponent(path)}');
   }
 
   @override
   void dispose() {
     _shareSub?.cancel();
     _tabs.dispose();
+    _browseNav.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.homeTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () => context.go(AppRoutes.search),
-            tooltip: l10n.search,
+    return AnimatedBuilder(
+      animation: Listenable.merge([_tabs, _browseNav]),
+      builder: (context, _) {
+        final canGoUpInBrowse = _tabs.index == 2 && _browseNav.canGoUp;
+        final isLibraryTab = _tabs.index == 1;
+        return PopScope(
+          canPop: !canGoUpInBrowse,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && canGoUpInBrowse) _browseNav.goUp();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(l10n.homeTitle),
+              actions: [
+                if (isLibraryTab) const _LibraryViewToggle(),
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => context.push(AppRoutes.search),
+                  tooltip: l10n.search,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => context.push(AppRoutes.settings),
+                  tooltip: l10n.settingsTitle,
+                ),
+              ],
+              bottom: TabBar(
+                controller: _tabs,
+                tabs: const [
+                  Tab(icon: Icon(Icons.history), text: 'Recents'),
+                  Tab(icon: Icon(Icons.folder_outlined), text: 'Library'),
+                  Tab(icon: Icon(Icons.sd_storage_outlined), text: 'Browse'),
+                ],
+              ),
+            ),
+            body: TabBarView(
+              controller: _tabs,
+              children: [
+                const _RecentsTab(),
+                const _LibraryTab(),
+                BrowseTab(nav: _browseNav),
+              ],
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.go(AppRoutes.settings),
-            tooltip: l10n.settingsTitle,
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabs,
-          tabs: const [
-            Tab(icon: Icon(Icons.history), text: 'Recents'),
-            Tab(icon: Icon(Icons.folder_outlined), text: 'Library'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabs,
-        children: [
-          _RecentsTab(onPick: () => _pickAndOpen(context)),
-          const _LibraryTab(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: l10n.homeBrowse,
-        onPressed: () => _pickAndOpen(context),
-        child: const Icon(Icons.folder_open_outlined),
-      ),
+        );
+      },
     );
   }
+}
 
-  Future<void> _pickAndOpen(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result == null) return;
-    final path = result.files.single.path;
-    if (path == null || !context.mounted) return;
-    context.go('${AppRoutes.reader}?path=${Uri.encodeQueryComponent(path)}');
+class _LibraryViewToggle extends ConsumerWidget {
+  const _LibraryViewToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gridView = ref.watch(libraryGridViewProvider);
+    return IconButton(
+      icon: Icon(gridView ? Icons.view_list_outlined : Icons.grid_view_outlined),
+      tooltip: gridView ? 'List view' : 'Grid view',
+      onPressed: () =>
+          ref.read(libraryGridViewProvider.notifier).state = !gridView,
+    );
   }
 }
 
 // ── Recents tab ────────────────────────────────────────────────────────────────
 
 class _RecentsTab extends ConsumerWidget {
-  const _RecentsTab({required this.onPick});
-  final VoidCallback onPick;
+  const _RecentsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -172,7 +192,7 @@ class _RecentRow extends ConsumerWidget {
         overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      onTap: () => context.go(
+      onTap: () => context.push(
         '${AppRoutes.reader}?path=${Uri.encodeQueryComponent(ref.path)}',
       ),
     );
@@ -187,6 +207,7 @@ class _LibraryTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(libraryFilesProvider);
+    final gridView = ref.watch(libraryGridViewProvider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _ErrorView(
@@ -197,28 +218,106 @@ class _LibraryTab extends ConsumerWidget {
         if (files.isEmpty) {
           return _EmptyLibrary(onRetry: () => ref.invalidate(libraryFilesProvider));
         }
-        return _FileList(files: files, onRefresh: () {
-          ref.invalidate(libraryFilesProvider);
-          return ref.read(libraryFilesProvider.future);
-        });
+        return _FileList(
+          files: files,
+          gridView: gridView,
+          onRefresh: () {
+            ref.invalidate(libraryFilesProvider);
+            return ref.read(libraryFilesProvider.future);
+          },
+        );
       },
     );
   }
 }
 
 class _FileList extends StatelessWidget {
-  const _FileList({required this.files, required this.onRefresh});
+  const _FileList({
+    required this.files,
+    required this.gridView,
+    required this.onRefresh,
+  });
   final List<DocumentRef> files;
+  final bool gridView;
   final Future<List<DocumentRef>> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: onRefresh,
-      child: ListView.separated(
-        itemCount: files.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (_, i) => _FileRow(file: files[i]),
+      child: gridView
+          ? GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 140,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.78,
+              ),
+              itemCount: files.length,
+              itemBuilder: (_, i) => _FileTile(file: files[i]),
+            )
+          : ListView.separated(
+              itemCount: files.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (_, i) => _FileRow(file: files[i]),
+            ),
+    );
+  }
+}
+
+const _imageExtensions = {
+  'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif', 'tiff', 'tif',
+};
+
+class _FileTile extends StatelessWidget {
+  const _FileTile({required this.file});
+  final DocumentRef file;
+
+  @override
+  Widget build(BuildContext context) {
+    final isImage = _imageExtensions.contains(file.extension.toLowerCase());
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: () => context.push(
+        '${AppRoutes.reader}?path=${Uri.encodeQueryComponent(file.path)}',
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: double.infinity,
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: isImage
+                    ? Image.file(
+                        File(file.path),
+                        fit: BoxFit.cover,
+                        cacheWidth: 240,
+                        errorBuilder: (_, __, ___) => Icon(
+                          _iconFor(file.extension),
+                          size: 40,
+                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        ),
+                      )
+                    : Icon(
+                        _iconFor(file.extension),
+                        size: 40,
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            file.displayName,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }
@@ -255,7 +354,7 @@ class _FileRow extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
       ),
-      onTap: () => context.go(
+      onTap: () => context.push(
         '${AppRoutes.reader}?path=${Uri.encodeQueryComponent(file.path)}',
       ),
     );

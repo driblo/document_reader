@@ -80,7 +80,7 @@ class _ReaderScreenState extends ConsumerState<ReaderScreen> {
               IconButton(
                 tooltip: l10n.readerBookmarks,
                 icon: const Icon(Icons.bookmark_outline),
-                onPressed: () => context.go(
+                onPressed: () => context.push(
                   '${AppRoutes.bookmarks}?path='
                   '${Uri.encodeQueryComponent(opened.ref.path)}',
                 ),

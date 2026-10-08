@@ -29,6 +29,104 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- Open supported documents from other apps (file managers, Downloads,
+                 email, browsers, ...) via the system "Open with" chooser.
+
+                 Filter 1: well-known MIME types, as reported by content providers
+                 that assign a standard type (most modern file managers/Downloads). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="application/pdf"/>
+                <data android:mimeType="application/epub+zip"/>
+                <data android:mimeType="text/html"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="text/markdown"/>
+                <data android:mimeType="text/csv"/>
+                <data android:mimeType="text/xml"/>
+                <data android:mimeType="application/xml"/>
+                <data android:mimeType="application/json"/>
+                <data android:mimeType="application/x-cbz"/>
+                <data android:mimeType="application/vnd.comicbook+zip"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+
+            <!-- Filter 2: extension fallback for file types this app supports that
+                 have no standard registered MIME type (most source/code files,
+                 comics, alt config formats) and would otherwise arrive as
+                 application/octet-stream or with no type at all. Restricted to
+                 file:// and content:// URIs whose path still carries the original
+                 extension, which is true for local files and most providers. Uses
+                 android:pathPattern (not pathSuffix, which needs API 31+) since
+                 this app's minSdkVersion is 24. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="content"/>
+                <data android:scheme="file"/>
+                <data android:mimeType="*/*"/>
+                <data android:pathPattern=".*\\.pdf"/>
+                <data android:pathPattern=".*\\.epub"/>
+                <data android:pathPattern=".*\\.md"/>
+                <data android:pathPattern=".*\\.markdown"/>
+                <data android:pathPattern=".*\\.mdown"/>
+                <data android:pathPattern=".*\\.mkd"/>
+                <data android:pathPattern=".*\\.html"/>
+                <data android:pathPattern=".*\\.htm"/>
+                <data android:pathPattern=".*\\.xhtml"/>
+                <data android:pathPattern=".*\\.cbz"/>
+                <data android:pathPattern=".*\\.txt"/>
+                <data android:pathPattern=".*\\.log"/>
+                <data android:pathPattern=".*\\.csv"/>
+                <data android:pathPattern=".*\\.tsv"/>
+                <data android:pathPattern=".*\\.ini"/>
+                <data android:pathPattern=".*\\.conf"/>
+                <data android:pathPattern=".*\\.cfg"/>
+                <data android:pathPattern=".*\\.yaml"/>
+                <data android:pathPattern=".*\\.yml"/>
+                <data android:pathPattern=".*\\.toml"/>
+                <data android:pathPattern=".*\\.xml"/>
+                <data android:pathPattern=".*\\.json"/>
+                <data android:pathPattern=".*\\.sql"/>
+                <data android:pathPattern=".*\\.dart"/>
+                <data android:pathPattern=".*\\.java"/>
+                <data android:pathPattern=".*\\.kt"/>
+                <data android:pathPattern=".*\\.kts"/>
+                <data android:pathPattern=".*\\.swift"/>
+                <data android:pathPattern=".*\\.m"/>
+                <data android:pathPattern=".*\\.mm"/>
+                <data android:pathPattern=".*\\.c"/>
+                <data android:pathPattern=".*\\.h"/>
+                <data android:pathPattern=".*\\.cc"/>
+                <data android:pathPattern=".*\\.cpp"/>
+                <data android:pathPattern=".*\\.hpp"/>
+                <data android:pathPattern=".*\\.cxx"/>
+                <data android:pathPattern=".*\\.cs"/>
+                <data android:pathPattern=".*\\.go"/>
+                <data android:pathPattern=".*\\.rs"/>
+                <data android:pathPattern=".*\\.rb"/>
+                <data android:pathPattern=".*\\.py"/>
+                <data android:pathPattern=".*\\.php"/>
+                <data android:pathPattern=".*\\.pl"/>
+                <data android:pathPattern=".*\\.lua"/>
+                <data android:pathPattern=".*\\.sh"/>
+                <data android:pathPattern=".*\\.bash"/>
+                <data android:pathPattern=".*\\.zsh"/>
+                <data android:pathPattern=".*\\.js"/>
+                <data android:pathPattern=".*\\.mjs"/>
+                <data android:pathPattern=".*\\.cjs"/>
+                <data android:pathPattern=".*\\.ts"/>
+                <data android:pathPattern=".*\\.tsx"/>
+                <data android:pathPattern=".*\\.jsx"/>
+                <data android:pathPattern=".*\\.r"/>
+                <data android:pathPattern=".*\\.scala"/>
+                <data android:pathPattern=".*\\.groovy"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

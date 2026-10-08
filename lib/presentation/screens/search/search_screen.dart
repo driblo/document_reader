@@ -71,7 +71,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       subtitle: Text(h.snippet,
                           maxLines: 2, overflow: TextOverflow.ellipsis),
                       trailing: Text(h.score.toStringAsFixed(1)),
-                      onTap: () => context.go(
+                      onTap: () => context.push(
                         '${AppRoutes.reader}?path='
                         '${Uri.encodeQueryComponent(h.documentPath)}',
                       ),

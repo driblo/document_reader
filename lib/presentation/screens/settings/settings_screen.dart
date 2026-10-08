@@ -18,19 +18,19 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language_outlined),
             title: Text(l10n.settingsLanguage),
-            onTap: () => context.go(AppRoutes.language),
+            onTap: () => context.push(AppRoutes.language),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.favorite_outline),
             title: Text(l10n.settingsSupportLink),
-            onTap: () => context.go(AppRoutes.support),
+            onTap: () => context.push(AppRoutes.support),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.description_outlined),
             title: Text(l10n.settingsOpenSourceLicenses),
-            onTap: () => context.go(AppRoutes.licenses),
+            onTap: () => context.push(AppRoutes.licenses),
           ),
         ],
       ),
